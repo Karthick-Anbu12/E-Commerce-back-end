@@ -14,7 +14,7 @@ app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json())
 mongoose.connect(url).then(() => {
   console.log("Database connected successfully.");
-  app.listen(3000, () => {
+  app.listen(process.env.PORT, () => {
     console.log(`Server is running on port 3000`);
   });
 });
