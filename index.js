@@ -10,7 +10,7 @@ const dotenv=require("dotenv")
 dotenv.config()
 const secretkey = process.env.SECRET_KEY
 const url = process.env.DB;
-app.use(cors({ origin: "http://localhost:5173" }));
+app.use(cors({ origin: "https://my-shopping-web-site.netlify.app" }));
 app.use(express.json())
 mongoose.connect(url).then(() => {
   console.log("Database connected successfully.");
