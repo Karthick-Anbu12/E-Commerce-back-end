@@ -8,13 +8,13 @@ const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 const dotenv=require("dotenv")
 dotenv.config()
-const secretkey = process.env.SECRECT_KEY
+const secretkey = process.env.SECRET_KEY
 const url = process.env.DB;
-app.use(cors({ origin: "https://my-shopping-web-site.netlify.app" }));
+app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json())
 mongoose.connect(url).then(() => {
   console.log("Database connected successfully.");
-  app.listen(process.env.PORT, () => {
+  app.listen(3000, () => {
     console.log(`Server is running on port 3000`);
   });
 });
@@ -333,7 +333,31 @@ app.post("/cart-total", authenticate, async (req, res) => {
 
     const collection = client.db().collection("users");
     const id = new ObjectId(`${req.userid}`)
-    const updatecart = await collection.updateOne({ _id: id },{$set:{total:(req.body.total)}})
+    const updatecart = await collection.updateOne({ _id: id },{$set:{total:req.body.total}})
+    if (updatecart) {
+      res.json(updatecart);
+    }
+    else {
+      res.status(500).json({ message: "not updated" })
+    }
+  } catch (error) {
+    console.error("Error fetching data: ", error);
+  } finally {
+    // Close the connection to the MongoDB cluster
+    await client.close();
+  }
+})
+app.post("/after-checkout", authenticate, async (req, res) => {
+  const client = new MongoClient(url);
+
+  try {
+    await client.connect();
+
+    const collection = client.db().collection("users");
+    const id = new ObjectId(`${req.userid}`)
+
+    const updatecart = await collection.findOneAndUpdate({ _id: id }, { $set: { cart: (req.body) }})
+
     if (updatecart) {
       res.json(updatecart);
     }
