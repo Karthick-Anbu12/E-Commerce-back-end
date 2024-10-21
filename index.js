@@ -333,7 +333,7 @@ app.post("/cart-total", authenticate, async (req, res) => {
 
     const collection = client.db().collection("users");
     const id = new ObjectId(`${req.userid}`)
-    const updatecart = await collection.updateOne({ _id: id },{$set:{total:req.body.total}})
+    const updatecart = await collection.updateOne({ _id: id },{$set:{total:0}})
     if (updatecart) {
       res.json(updatecart);
     }
@@ -356,8 +356,30 @@ app.post("/after-checkout", authenticate, async (req, res) => {
     const collection = client.db().collection("users");
     const id = new ObjectId(`${req.userid}`)
 
-    const updatecart = await collection.findOneAndUpdate({ _id: id }, { $set: { cart: (req.body) }})
+    const updatecart = await collection.findOneAndUpdate({ _id: id }, { $set: { cart:([]) }})
 
+    if (updatecart) {
+      res.json(updatecart);
+    }
+    else {
+      res.status(500).json({ message: "not updated" })
+    }
+  } catch (error) {
+    console.error("Error fetching data: ", error);
+  } finally {
+    // Close the connection to the MongoDB cluster
+    await client.close();
+  }
+})
+app.post("/total", authenticate, async (req, res) => {
+  const client = new MongoClient(url);
+//console.log(req.body)
+  try {
+    await client.connect();
+
+    const collection = client.db().collection("users");
+    const id = new ObjectId(`${req.userid}`)
+    const updatecart = await collection.updateOne({ _id: id },{$set:{total:req.body.total}})
     if (updatecart) {
       res.json(updatecart);
     }
